@@ -3,7 +3,7 @@ extern crate sdl2;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use sdl2::video::Window;
+// use sdl2::video::Window;
 use std::time::Duration;
 
 // Define window dimensions
@@ -61,7 +61,7 @@ impl Planet {
         }
     }
 
-    pub fn set_velocity(&mut self, vel: f64) {
+    fn set_velocity(&mut self, vel: f64) {
         let p = self.position; // position of planet
         let s = (0.0, 0.0); // position of center (sun)
         let vector = (-(p.1 - s.1), p.0 - s.0); // orthogonal vector
@@ -81,8 +81,10 @@ impl Planet {
         let mut dy = 1;
         let mut err = dx - (self.radius << 1);
 
-        let offset_x = (self.position.0 as i32 * SCALE as i32) + (WIDTH as i32) / 2;
-        let offset_y = (self.position.1 as i32 * SCALE as i32) + (HEIGHT as i32) / 2;
+        let center_x = (WIDTH as i32) / 2;
+        let center_y = (HEIGHT as i32) / 2;
+        let offset_x = (self.position.0 as i32 * SCALE as i32) + center_x;
+        let offset_y = (self.position.1 as i32 * SCALE as i32) + center_y;
 
         canvas.set_draw_color(self.color);
 
@@ -158,3 +160,39 @@ pub fn main() {
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 }
+
+// fn midpoint_circle_algorithm(
+//     canvas: &mut sdl2::render::Canvas<sdl2::video::Window>,
+//     x: i32,
+//     y: i32,
+//     radius: i32,
+// ) {
+//     let mut x0 = 0;
+//     let mut y0 = radius;
+//     let mut d = 1 - radius;
+//     let mut delta_e = 3;
+//     let mut delta_se = -2 * radius + 5;
+
+//     while y0 > x0 {
+//         canvas.draw_point((x + x0, y + y0)).unwrap();
+//         canvas.draw_point((x + y0, y + x0)).unwrap();
+//         canvas.draw_point((x - y0, y + x0)).unwrap();
+//         canvas.draw_point((x - x0, y + y0)).unwrap();
+//         canvas.draw_point((x - x0, y - y0)).unwrap();
+//         canvas.draw_point((x - y0, y - x0)).unwrap();
+//         canvas.draw_point((x + y0, y - x0)).unwrap();
+//         canvas.draw_point((x + x0, y - y0)).unwrap();
+
+//         if d < 0 {
+//             d += delta_e;
+//             delta_e += 2;
+//             delta_se += 2;
+//         } else {
+//             d += delta_se;
+//             delta_e += 2;
+//             delta_se += 4;
+//             y0 -= 1;
+//         }
+//         x0 += 1;
+//     }
+// }
