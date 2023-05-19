@@ -5,8 +5,8 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use std::time::Duration;
 
-use sdl2::rect::Point;
-use sdl2::render::Renderer;
+// use sdl2::rect::Point;
+// use sdl2::render::Renderer;
 
 // Define window dimensions
 const WIDTH: u32 = 800;
@@ -75,55 +75,6 @@ impl Planet {
         let magnitude = (vector.0.powi(2) + vector.1.powi(2)).sqrt();
         (vector.0 / magnitude, vector.1 / magnitude)
     }
-
-    pub fn draw_circle(renderer: &Renderer, centre_x: i32, centre_y: i32, radius: i32) {
-        let diameter = radius * 2;
-
-        let mut x = radius - 1;
-        let mut y = 0;
-        let mut tx = 1;
-        let mut ty = 1;
-        let mut error = tx - diameter;
-
-        while x >= y {
-            renderer
-                .draw_point(Point::new(centre_x + x, centre_y - y))
-                .unwrap();
-            renderer
-                .draw_point(Point::new(centre_x + x, centre_y + y))
-                .unwrap();
-            renderer
-                .draw_point(Point::new(centre_x - x, centre_y - y))
-                .unwrap();
-            renderer
-                .draw_point(Point::new(centre_x - x, centre_y + y))
-                .unwrap();
-            renderer
-                .draw_point(Point::new(centre_x + y, centre_y - x))
-                .unwrap();
-            renderer
-                .draw_point(Point::new(centre_x + y, centre_y + x))
-                .unwrap();
-            renderer
-                .draw_point(Point::new(centre_x - y, centre_y - x))
-                .unwrap();
-            renderer
-                .draw_point(Point::new(centre_x - y, centre_y + x))
-                .unwrap();
-
-            if error <= 0 {
-                y += 1;
-                error += ty;
-                ty += 2;
-            }
-
-            if error > 0 {
-                x -= 1;
-                tx += 2;
-                error += tx - diameter;
-            }
-        }
-    }
 }
 
 pub fn main() {
@@ -162,15 +113,39 @@ pub fn main() {
         }
         // The rest of the game loop goes here...
 
-        // canvas.set_draw_color(WHITE);
-        // let center = Point::new(400, 400);
-        // let radius = 50;
-        // canvas.draw_circle(center, radius as i16).unwrap();
-        // canvas.present();
+        draw_circle(&mut canvas);
 
         // End of personal game loop
 
         canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+    }
+}
+
+fn draw_circle(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    let mut x = 0;
+    let mut y = 20;
+    let mut p = 1 - 20;
+
+    canvas.set_draw_color(Color::RGB(255, 255, 255));
+
+    while x <= y {
+        canvas.draw_point((x + 400, y + 300)).unwrap();
+        canvas.draw_point((-x + 400, y + 300)).unwrap();
+        canvas.draw_point((x + 400, -y + 300)).unwrap();
+        canvas.draw_point((-x + 400, -y + 300)).unwrap();
+        canvas.draw_point((y + 400, x + 300)).unwrap();
+        canvas.draw_point((-y + 400, x + 300)).unwrap();
+        canvas.draw_point((y + 400, -x + 300)).unwrap();
+        canvas.draw_point((-y + 400, -x + 300)).unwrap();
+
+        x += 1;
+
+        if p < 0 {
+            p += 2 * x + 1;
+        } else {
+            y -= 1;
+            p += 2 * (x - y) + 1;
+        }
     }
 }
