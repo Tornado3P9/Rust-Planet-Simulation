@@ -3,10 +3,8 @@ extern crate sdl2;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
+use sdl2::video::Window;
 use std::time::Duration;
-
-// use sdl2::rect::Point;
-// use sdl2::render::Renderer;
 
 // Define window dimensions
 const WIDTH: u32 = 800;
@@ -75,6 +73,44 @@ impl Planet {
         let magnitude = (vector.0.powi(2) + vector.1.powi(2)).sqrt();
         (vector.0 / magnitude, vector.1 / magnitude)
     }
+
+    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+        let mut x = self.radius - 1;
+        let mut y = 0;
+        let mut dx = 1;
+        let mut dy = 1;
+        let mut err = dx - (self.radius << 1);
+
+        let offset_x = (self.position.0 as i32 * SCALE as i32) + (WIDTH as i32) / 2;
+        let offset_y = (self.position.1 as i32 * SCALE as i32) + (HEIGHT as i32) / 2;
+
+        canvas.set_draw_color(self.color);
+
+        while x >= y {
+            canvas
+                .draw_line((offset_x - x, offset_y + y), (offset_x + x, offset_y + y))
+                .unwrap();
+            canvas
+                .draw_line((offset_x - x, offset_y - y), (offset_x + x, offset_y - y))
+                .unwrap();
+            canvas
+                .draw_line((offset_x - y, offset_y + x), (offset_x + y, offset_y + x))
+                .unwrap();
+            canvas
+                .draw_line((offset_x - y, offset_y - x), (offset_x + y, offset_y - x))
+                .unwrap();
+
+            if err <= 0 {
+                y += 1;
+                err += dy;
+                dy += 2;
+            } else {
+                x -= 1;
+                dx += 2;
+                err += dx - (self.radius << 1);
+            }
+        }
+    }
 }
 
 pub fn main() {
@@ -111,41 +147,14 @@ pub fn main() {
                 _ => {}
             }
         }
-        // The rest of the game loop goes here...
 
-        draw_circle(&mut canvas);
+        // #BEGIN#
 
-        // End of personal game loop
+        earth.draw(&mut canvas);
+
+        // #END#
 
         canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
-    }
-}
-
-fn draw_circle(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-    let mut x = 0;
-    let mut y = 20;
-    let mut p = 1 - 20;
-
-    canvas.set_draw_color(Color::RGB(255, 255, 255));
-
-    while x <= y {
-        canvas.draw_point((x + 400, y + 300)).unwrap();
-        canvas.draw_point((-x + 400, y + 300)).unwrap();
-        canvas.draw_point((x + 400, -y + 300)).unwrap();
-        canvas.draw_point((-x + 400, -y + 300)).unwrap();
-        canvas.draw_point((y + 400, x + 300)).unwrap();
-        canvas.draw_point((-y + 400, x + 300)).unwrap();
-        canvas.draw_point((y + 400, -x + 300)).unwrap();
-        canvas.draw_point((-y + 400, -x + 300)).unwrap();
-
-        x += 1;
-
-        if p < 0 {
-            p += 2 * x + 1;
-        } else {
-            y -= 1;
-            p += 2 * (x - y) + 1;
-        }
     }
 }
