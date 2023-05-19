@@ -75,41 +75,34 @@ impl Planet {
     }
 
     fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-        let mut x = self.radius - 1;
+        // Draw the filled-circle using the midpoint circle algorithm
+        let x0: i32 = (self.position.0 * SCALE + (WIDTH / 2) as f64) as i32;
+        let y0: i32 = (self.position.1 * SCALE + (HEIGHT / 2) as f64) as i32;
+        let mut x = self.radius;
         let mut y = 0;
-        let mut dx = 1;
-        let mut dy = 1;
-        let mut err = dx - (self.radius << 1);
-
-        let center_x = (WIDTH as i32) / 2;
-        let center_y = (HEIGHT as i32) / 2;
-        let offset_x = (self.position.0 as i32 * SCALE as i32) + center_x;
-        let offset_y = (self.position.1 as i32 * SCALE as i32) + center_y;
+        let mut err = 0;
 
         canvas.set_draw_color(self.color);
 
         while x >= y {
             canvas
-                .draw_line((offset_x - x, offset_y + y), (offset_x + x, offset_y + y))
+                .draw_line((x0 + x, y0 + y), (x0 - x, y0 + y))
                 .unwrap();
             canvas
-                .draw_line((offset_x - x, offset_y - y), (offset_x + x, offset_y - y))
+                .draw_line((x0 + y, y0 + x), (x0 - y, y0 + x))
                 .unwrap();
             canvas
-                .draw_line((offset_x - y, offset_y + x), (offset_x + y, offset_y + x))
+                .draw_line((x0 - x, y0 - y), (x0 + x, y0 - y))
                 .unwrap();
             canvas
-                .draw_line((offset_x - y, offset_y - x), (offset_x + y, offset_y - x))
+                .draw_line((x0 - y, y0 - x), (x0 + y, y0 - x))
                 .unwrap();
 
-            if err <= 0 {
-                y += 1;
-                err += dy;
-                dy += 2;
-            } else {
+            y += 1;
+            err += 1 + 2 * y;
+            if 2 * (err - x) + 1 > 0 {
                 x -= 1;
-                dx += 2;
-                err += dx - (self.radius << 1);
+                err += 1 - 2 * x;
             }
         }
     }
@@ -137,8 +130,11 @@ pub fn main() {
     earth.set_velocity(29.783 * 1000.); // 29.783 km/sec in m/s
 
     'running: loop {
+        // Set the canvas color to black
         canvas.set_draw_color(BLACK);
         canvas.clear();
+
+        // Listen for a user event
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. }
@@ -150,49 +146,11 @@ pub fn main() {
             }
         }
 
-        // #BEGIN#
-
+        // Draw a filled-circle using the midpoint circle algorithm
         earth.draw(&mut canvas);
 
-        // #END#
-
+        // Present the canvas
         canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 }
-
-// fn midpoint_circle_algorithm(
-//     canvas: &mut sdl2::render::Canvas<sdl2::video::Window>,
-//     x: i32,
-//     y: i32,
-//     radius: i32,
-// ) {
-//     let mut x0 = 0;
-//     let mut y0 = radius;
-//     let mut d = 1 - radius;
-//     let mut delta_e = 3;
-//     let mut delta_se = -2 * radius + 5;
-
-//     while y0 > x0 {
-//         canvas.draw_point((x + x0, y + y0)).unwrap();
-//         canvas.draw_point((x + y0, y + x0)).unwrap();
-//         canvas.draw_point((x - y0, y + x0)).unwrap();
-//         canvas.draw_point((x - x0, y + y0)).unwrap();
-//         canvas.draw_point((x - x0, y - y0)).unwrap();
-//         canvas.draw_point((x - y0, y - x0)).unwrap();
-//         canvas.draw_point((x + y0, y - x0)).unwrap();
-//         canvas.draw_point((x + x0, y - y0)).unwrap();
-
-//         if d < 0 {
-//             d += delta_e;
-//             delta_e += 2;
-//             delta_se += 2;
-//         } else {
-//             d += delta_se;
-//             delta_e += 2;
-//             delta_se += 4;
-//             y0 -= 1;
-//         }
-//         x0 += 1;
-//     }
-// }
