@@ -5,17 +5,14 @@ const WIDTH: u32 = 800;
 const HEIGHT: u32 = 800;
 
 const AU: f64 = 149.6e6 * 1000.0; // Define astronomical unit in meters
-const G: f64 = 6.67428e-11; // Define gravitational constant
 const SCALE: f64 = 250.0 / AU; // Define scaling factor for visualization
-const TIMESTAMP: i64 = 3600 * 24; // 1 day (in seconds)
 
 pub struct Planet {
-    name: String,
+    pub name: String,
     distance_to_sun: f64,
-    angle: f64,
-    mass: f64,
-    position: (f64, f64),
-    velocity: (f64, f64),
+    pub mass: f64,
+    pub position: (f64, f64),
+    pub velocity: (f64, f64),
     radius: i32,
     color: Color,
     orbit: Vec<i32>,
@@ -32,7 +29,6 @@ impl Planet {
         Self {
             name,
             distance_to_sun,
-            angle,
             mass,
             position: (
                 distance_to_sun * f64::cos(angle.to_radians()),
@@ -50,7 +46,7 @@ impl Planet {
     pub fn set_velocity(&mut self, vel: f64) {
         let p = self.position; // position of planet
         let s = (0.0, 0.0); // position of center (sun)
-        let vector = (-(p.1 - s.1), p.0 - s.0); // orthogonal vector
+        let vector = (p.1 - s.1, -(p.0 - s.0)); // orthogonal vector
         let n = self.normalize_vector(vector); // vector length = 1
         self.velocity = (vel * n.0, vel * n.1); // vector length = planet velocity
     }
