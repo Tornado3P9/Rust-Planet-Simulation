@@ -15,7 +15,7 @@ pub struct Planet {
     pub velocity: (f64, f64),
     radius: i32,
     color: Color,
-    orbit: Vec<i32>,
+    orbit: Vec<(i32, i32)>,
 }
 impl Planet {
     pub fn new(
@@ -56,7 +56,7 @@ impl Planet {
         (vector.0 / magnitude, vector.1 / magnitude)
     }
 
-    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
         // Draw the filled-circle using the midpoint circle algorithm
         let x0: i32 = (self.position.0 * SCALE + (WIDTH / 2) as f64) as i32;
         let y0: i32 = (self.position.1 * SCALE + (HEIGHT / 2) as f64) as i32;
@@ -85,6 +85,19 @@ impl Planet {
             if 2 * (err - x) + 1 > 0 {
                 x -= 1;
                 err += 1 - 2 * x;
+            }
+        }
+
+        // Draw the orbit line
+        self.orbit.push((x0, y0));
+        if self.orbit.len() > 1000 {
+            self.orbit.remove(0);
+        }
+        if self.orbit.len() > 2 {
+            for i in 0..self.orbit.len() - 1 {
+                let start = self.orbit[i];
+                let end = self.orbit[i + 1];
+                canvas.draw_line(start, end).unwrap();
             }
         }
     }

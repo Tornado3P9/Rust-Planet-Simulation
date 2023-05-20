@@ -43,7 +43,7 @@ pub fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     // Define Planets
-    let mut sun = Planet::new("sun".to_string(), 0., 0., 1.98892e30, 30, YELLOW);
+    let sun = Planet::new("sun".to_string(), 0., 0., 1.98892e30, 30, YELLOW);
 
     let mut mercury = Planet::new("mercury".to_string(), 0.387 * AU, 35., 3.30e23, 7, GREY);
     mercury.set_velocity(47.4 * 1000.);
@@ -61,10 +61,6 @@ pub fn main() {
     let mut planets = vec![sun, mercury, venus, earth, mars];
 
     'running: loop {
-        // Set the canvas color to black
-        canvas.set_draw_color(BLACK);
-        canvas.clear();
-
         // Listen for a user event
         for event in event_pump.poll_iter() {
             match event {
@@ -112,10 +108,16 @@ pub fn main() {
 
         /***************POSITION END****************/
 
-        // Draw Planets
-        planets.iter().for_each(|object| object.draw(&mut canvas));
+        // Set the canvas color to black
+        canvas.set_draw_color(BLACK);
+        canvas.clear();
 
-        // Present the canvas
+        // Draw Planets
+        planets
+            .iter_mut()
+            .for_each(|object| object.draw(&mut canvas));
+
+        // Present the canvas at 60 fps
         canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
