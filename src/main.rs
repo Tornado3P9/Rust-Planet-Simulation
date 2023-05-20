@@ -126,8 +126,19 @@ pub fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     // Define Planets
+    let mut sun = Planet::new("sun".to_string(), 0., 0., 1.98892e30, 30, YELLOW);
+
+    let mut mercury = Planet::new("mercury".to_string(), 0.387 * AU, 35., 3.30e23, 8, GREY);
+    mercury.set_velocity(47.4 * 1000.);
+
+    let mut venus = Planet::new("venus".to_string(), 0.723 * AU, 60., 4.8685e24, 14, WHITISH);
+    venus.set_velocity(35.02 * 1000.);
+
     let mut earth = Planet::new("earth".to_string(), 1.0 * AU, 50., 5.9742e24, 16, CYAN);
     earth.set_velocity(29.783 * 1000.); // 29.783 km/sec in m/s
+
+    let mut mars = Planet::new("mars".to_string(), 1.524 * AU, 95., 6.39e23, 12, RED);
+    mars.set_velocity(24.077 * 1000.);
 
     'running: loop {
         // Set the canvas color to black
@@ -146,8 +157,12 @@ pub fn main() {
             }
         }
 
-        // Draw a filled-circle using the midpoint circle algorithm
+        // Draw a filled-circle
+        sun.draw(&mut canvas);
+        mercury.draw(&mut canvas);
+        venus.draw(&mut canvas);
         earth.draw(&mut canvas);
+        mars.draw(&mut canvas);
 
         // Present the canvas
         canvas.present();
